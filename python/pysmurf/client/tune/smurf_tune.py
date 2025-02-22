@@ -3587,6 +3587,7 @@ class SmurfTuneMixin(SmurfBase):
             flip_phase=flip_phase, grad_kernel_width=grad_kernel_width,
             amp_cut=amp_cut, pad=pad, min_gap=min_gap)
         self.freq_resp[band]['find_freq']['resonance'] = res_freq
+        self.log(f'find_all_peak: {res_freq}')
 
         # Save resonances
         path = os.path.join(self.output_dir,
@@ -3952,6 +3953,8 @@ class SmurfTuneMixin(SmurfBase):
         """
         # Turn off all tones in this band first
         self.band_off(band)
+        self.log(f"""Running setup_notches: ========================================================== \n 
+            =======================================================================================""")
 
         # Check if any resonances are stored
         if 'find_freq' not in self.freq_resp[band]:
@@ -3975,10 +3978,13 @@ class SmurfTuneMixin(SmurfBase):
         if resonance is not None:
             input_res = resonance
         else:
+            self.log(f"input_res: {self.freq_resp[band]['find_freq']['resonance']}")
             input_res = self.freq_resp[band]['find_freq']['resonance']
 
         n_subbands = self.get_number_sub_bands(band)
+        self.log(f'n_subbands: {n_subbands}')
         n_channels = self.get_number_channels(band)
+        self.log(f'n_channels: {n_channels}')
         digitizer_frequency_mhz = self.get_digitizer_frequency_mhz(band)
         subband_half_width = digitizer_frequency_mhz/\
             n_subbands
@@ -3988,6 +3994,7 @@ class SmurfTuneMixin(SmurfBase):
         # Loop over inputs and do eta scans
         resonances = {}
         band_center = self.get_band_center_mhz(band)
+        self.log(f'band_center: {band_center}')
         input_res = input_res + band_center
 
         n_res = len(input_res)
@@ -4028,6 +4035,8 @@ class SmurfTuneMixin(SmurfBase):
         for i, ch in enumerate(channels):
             freq[ch, :] = offsets[i] + f_sweep
 
+        self.log(f"""set_run_serial_find_freq: ========================================================== \n 
+            =======================================================================================""")
         self.set_eta_scan_freq(band, freq.flatten())
         self.set_eta_scan_amplitude(band, tone_power)
         self.set_run_serial_find_freq(band, 1)
