@@ -3527,6 +3527,8 @@ class SmurfTuneMixin(SmurfBase):
         min_gap : int, optional, default 2
             Minimum number of samples between resonances.
         '''
+        self.log(f"""Running find_freq: ========================================================== \n 
+        =======================================================================================""")
         band_center = self.get_band_center_mhz(band)
         if subband is None:
             start_subband = self.freq_to_subband(band, band_center + start_freq)[0]
@@ -3550,6 +3552,9 @@ class SmurfTuneMixin(SmurfBase):
             self.log('No tone_power given. Using value in config ' +
                      f'file: {tone_power}')
 
+        self.log(f"start_freq: {start_freq}")
+        self.log(f"stop_freq: {stop_freq}")
+        self.log(f"band_center: {band_center}")
         self.log(f'Sweeping across frequencies {start_freq + band_center}MHz to {stop_freq + band_center}MHz')
         f, resp = self.full_band_ampl_sweep(band, subband, tone_power, n_read)
 
@@ -3610,7 +3615,7 @@ class SmurfTuneMixin(SmurfBase):
 
     @set_action()
     def plot_find_freq(self, f=None, resp=None, subband=None, filename=None,
-            save_plot=True, save_name='amp_sweep.png', show_plot=False):
+            save_plot=True, save_name='amp_sweep.pdf', show_plot=False):
         '''
         Plots the response of the frequency sweep. Must input f and
         resp, or give a path to a text file containing the data for
@@ -3634,6 +3639,8 @@ class SmurfTuneMixin(SmurfBase):
         show_plot : bool, optional, default False
             Whether to show the plot.
         '''
+        self.log(f"""Running plot_find_freq: ========================================================== \n 
+        =======================================================================================""")
         if subband is None:
             subband = np.arange(self.get_number_sub_bands())
         subband = np.asarray(subband)
@@ -3652,6 +3659,9 @@ class SmurfTuneMixin(SmurfBase):
                 color = cm(float(i)/len(subband)/2. + .5*(i%2))
                 plt.plot(f[sb,:], np.abs(resp[sb,:]), '.', markersize=4,
                     color=color)
+                # xjw test why the frequency offset not as expected 
+                self.log(f"sub-band {i} frequency: {f[sb,:]}")
+                self.log(f"sub-band {i} response: {np.abs(resp[sb,:])}")
             plt.title("find_freq response")
             plt.xlabel("Frequency offset (MHz)")
             plt.ylabel("Normalized Amplitude")
