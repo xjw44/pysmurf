@@ -3476,7 +3476,7 @@ class SmurfTuneMixin(SmurfBase):
 
     @set_action()
     def find_freq(self, band, start_freq=-250, stop_freq=250, subband=None,
-            tone_power=None, n_read=2, make_plot=False, save_plot=True,
+            tone_power=None, n_read=2, n_step=31, make_plot=False, save_plot=True,
             plotname_append='', window=50, rolling_med=True,
             make_subband_plot=False, show_plot=False, grad_cut=.05,
             flip_phase=False, grad_kernel_width=8,
@@ -3556,7 +3556,7 @@ class SmurfTuneMixin(SmurfBase):
         self.log(f"stop_freq: {stop_freq}")
         self.log(f"band_center: {band_center}")
         self.log(f'Sweeping across frequencies {start_freq + band_center}MHz to {stop_freq + band_center}MHz')
-        f, resp = self.full_band_ampl_sweep(band, subband, tone_power, n_read)
+        f, resp = self.full_band_ampl_sweep(band, subband, tone_power, n_read, n_step)
 
         timestamp = self.get_timestamp()
 
@@ -3582,6 +3582,7 @@ class SmurfTuneMixin(SmurfBase):
         else:
             self.freq_resp[band]['find_freq']['timestamp'] = np.array([timestamp])
 
+        self.log(f"amp_cut: {amp_cut}")
         # Find resonator peaks
         res_freq = self.find_all_peak(self.freq_resp[band]['find_freq']['f'],
             self.freq_resp[band]['find_freq']['resp'], subband,
@@ -3698,6 +3699,8 @@ class SmurfTuneMixin(SmurfBase):
         resp : (array, n_freq x 2)
             Complex response.
         """
+        self.log(f"""Running full_band_ampl_sweep: ========================================================== \n 
+        =======================================================================================""")
         digitizer_freq = self.get_digitizer_frequency_mhz(band)  # in MHz
         n_subbands = self.get_number_sub_bands(band)
         if n_subbands == 128:
@@ -3706,6 +3709,8 @@ class SmurfTuneMixin(SmurfBase):
         n_channels = self.get_number_channels(band)
 
         scan_freq = (digitizer_freq/n_subbands/2)*np.linspace(-1,1,n_step)
+        self.log(f"scan_freq: {scan_freq}")
+        self.log(f"n_step: {n_step}")
 
         channel_order = self.get_channel_order(band)
 
