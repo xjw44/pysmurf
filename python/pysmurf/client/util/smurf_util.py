@@ -29,6 +29,12 @@ from pysmurf.client.command.sync_group import SyncGroup as SyncGroup
 from pysmurf.client.util.SmurfFileReader import SmurfStreamReader
 from pysmurf.client.util.pub import set_action
 
+divider = (f"============================================================"
+          f"============================================================"
+          f"============================================================")
+
+sub_divider = f"============================================================"
+
 class SmurfUtilMixin(SmurfBase):
 
     @set_action()
@@ -240,6 +246,8 @@ class SmurfUtilMixin(SmurfBase):
            and `refPhaseDelayFine`.
 
         """
+        self.log(divider)
+        self.log(f"""Running estimate_phase_delay: ...""")
 
         self.set_band_delay_us(band, 0)
 
@@ -287,7 +295,8 @@ class SmurfUtilMixin(SmurfBase):
         self.band_off(band)
         self.flux_ramp_off()
 
-        self.log('Running full band resp')
+        self.log(sub_divider)
+        self.log('Running full_band_resp: ...')
         freq_cable, resp_cable = self.full_band_resp(
             band, nsamp=nsamp, make_plot=make_plot,
             save_data=save_data, n_scan=n_scan)
@@ -306,6 +315,7 @@ class SmurfUtilMixin(SmurfBase):
 ## FIXME -- should be able to scan with "0" delay, not working
         self.set_band_delay_us(band, 1)
 
+        self.log(sub_divider)
         self.log('Running find_freq')
         #freq_dsp,resp_dsp=self.find_freq(band, start_freq=freq_min, stop_freq=freq_max)
         freq_dsp,resp_dsp=self.find_freq(band,subband=dsp_subbands)
@@ -677,6 +687,9 @@ class SmurfUtilMixin(SmurfBase):
             nDF = 1
 
         header, rawdata = self.process_data(filename)
+        print(f"filename: {filename}")
+        print(f"header: {header}")
+        print(f"rawdata: {rawdata}")
 
         # decode strobes
         strobes = np.floor(rawdata / (2**30))
