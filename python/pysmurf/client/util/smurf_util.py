@@ -687,9 +687,9 @@ class SmurfUtilMixin(SmurfBase):
             nDF = 1
 
         header, rawdata = self.process_data(filename)
-        print(f"filename: {filename}")
-        print(f"header: {header}")
-        print(f"rawdata: {rawdata}")
+        # print(f"filename: {filename}")
+        # print(f"header: {header}")
+        # print(f"rawdata: {rawdata}")
 
         # decode strobes
         strobes = np.floor(rawdata / (2**30))
